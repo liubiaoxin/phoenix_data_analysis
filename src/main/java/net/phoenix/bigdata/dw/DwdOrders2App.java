@@ -13,7 +13,7 @@ public class DwdOrders2App {
 
     public static void main(String[] args) throws  Exception{
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(2);
+        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(fsEnv, fsSettings);
 
 
