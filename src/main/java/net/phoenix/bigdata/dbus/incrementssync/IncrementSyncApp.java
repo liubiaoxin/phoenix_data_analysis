@@ -68,7 +68,7 @@ public class IncrementSyncApp {
         //keyedMessage.print();
 
         //读取配置流
-        BroadcastStream<Flow> broadcast = sEnv.addSource(new FlowSoure()).broadcast(flowStateDescriptor);
+        BroadcastStream<Flow> broadcast = sEnv.addSource(new FlowSoure()).setParallelism(1).broadcast(flowStateDescriptor);
 
 
         //连接数据流和配置流
@@ -78,7 +78,7 @@ public class IncrementSyncApp {
 
         //connectedStream.print();
 
-        connectedStream.addSink(new HbaseSyncSink());
+        connectedStream.addSink(new HbaseSyncSink()).setParallelism(1);
 
         sEnv.execute("IncrementSyncApp");
     }
