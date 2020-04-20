@@ -65,7 +65,7 @@ public class IncrementSyncApp {
                 return value.getDatabase() + value.getTable();
             }
         });
-        keyedMessage.print();
+        //keyedMessage.print();
 
         //读取配置流
         BroadcastStream<Flow> broadcast = sEnv.addSource(new FlowSoure()).broadcast(flowStateDescriptor);
@@ -76,7 +76,7 @@ public class IncrementSyncApp {
                 .process(new DbusProcessFunction())
                 .setParallelism(1);
 
-        connectedStream.print();
+        //connectedStream.print();
 
         connectedStream.addSink(new HbaseSyncSink());
 
