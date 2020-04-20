@@ -93,7 +93,7 @@ public class DwdOrders2App {
                 ") WITH (\n" +
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
                 "    'connector.version' = '7',  -- elasticsearch 版本，6 能支持 es 6+ 以及 7+ 的版本\n" +
-                "    'connector.hosts' = 'http://crxy103:9200',  -- elasticsearch 地址\n" +
+                "    'connector.hosts' = '"+GlobalConfig.ES_CONNECTOR_URL+"',  -- elasticsearch 地址\n" +
                 "    'connector.index' = 'buy_cnt_per_hour',  -- elasticsearch 索引名，相当于数据库的表名\n" +
                 "    'connector.document-type' = 'user_behavior', -- elasticsearch 的 type，相当于数据库的库名\n" +
                 "    'connector.bulk-flush.max-actions' = '1',  -- 每条数据都刷新\n" +
