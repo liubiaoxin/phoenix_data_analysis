@@ -44,6 +44,9 @@ public class GlobalConfig implements Serializable {
     public static final String KAFKA_ZK_CONNECTS = PropertiesUtils.getDefaultProperties().getProperty(Constant.KAFKA_ZK_CONNECTS);
     public static final String KAFKA_GROUP_ID = PropertiesUtils.getDefaultProperties().getProperty(Constant.KAFKA_GROUP_ID);
 
+    //ES相关配置
+    public static final String ES_CONNECTOR_URL = PropertiesUtils.getDefaultProperties().getProperty(Constant.ES_CONNECTOR_URL);
+
 
     public static void main(String[] args) {
         System.out.println(GlobalConfig.SYS_DB_URL);

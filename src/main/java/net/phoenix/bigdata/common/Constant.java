@@ -33,6 +33,11 @@ public class Constant {
     public static final String KAFKA_GROUP_ID = "kafka.group.id";
     /*********************KAFKA相关配置-begin******************/
 
+    /*********************ES相关配置-begin******************/
+    public static final String ES_CONNECTOR_URL = "es.connector.url";
+    /*********************ES相关配置-begin******************/
+
+
 
 
 }
