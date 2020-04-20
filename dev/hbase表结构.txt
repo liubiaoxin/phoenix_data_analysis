@@ -1,0 +1,7 @@
+hbase shell
+create_namespace 'dwd'
+create_namespace 'dws'
+
+####create 'dwd:orders',{NAME=>'cf',BLOCKCACHE=>true,BLOOMFILTER=>'ROW',DATA_BLOCK_ENCODING => 'PREFIX_TREE', BLOCKSIZE => '65536'}
+create 'dwd:orders','cf'
+create 'dws:orders','cf'
