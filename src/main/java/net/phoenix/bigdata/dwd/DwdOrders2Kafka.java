@@ -13,7 +13,7 @@ public class DwdOrders2Kafka {
 
     public static void main(String[] args) throws  Exception{
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(2);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(fsEnv, fsSettings);
 
 
