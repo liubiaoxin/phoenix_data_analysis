@@ -38,7 +38,7 @@ public class IncrementSyncApp {
     public static void main(String[] args) throws Exception {
         //获取执行环境
         StreamExecutionEnvironment sEnv = StreamExecutionEnvironment.getExecutionEnvironment();
-        sEnv.setStateBackend(new RocksDBStateBackend("hdfs:///flink/flink-checkpoints/"));
+        //sEnv.setStateBackend(new RocksDBStateBackend("hdfs:///flink/flink-checkpoints/"));
         //设置检查点
         sEnv.enableCheckpointing(5000,CheckpointingMode.EXACTLY_ONCE);
         sEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
