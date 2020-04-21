@@ -45,6 +45,7 @@ public class BuyCntPreHour {
         //kafka sink
         String kafka_sink_table = "dws_kafka_buy_orders_per_hours";
         String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
+                "    day STRING," +
                 "    hour_of_day BIGINT," +
                 "    order_num BIGINT" +
                 ") WITH (" +
