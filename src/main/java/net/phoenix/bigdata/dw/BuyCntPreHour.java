@@ -45,7 +45,7 @@ public class BuyCntPreHour {
         //kafka sink
         String kafka_sink_table = "dws_kafka_buy_orders_per_hours";
         String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
-                "    day STRING," +
+                "    order_day STRING," +
                 "    hour_of_day BIGINT," +
                 "    order_num BIGINT" +
                 ") WITH (" +
@@ -62,7 +62,7 @@ public class BuyCntPreHour {
 
 
         //计算逻辑结果注册临时表
-        String resultSql="select substring(DATE_FORMAT(TIMESTAMPADD(HOUR, 8, CURRENT_TIMESTAMP),'yyyy-MM-dd HH:mm:ss'),1,10) as day,"+
+        String resultSql="select substring(DATE_FORMAT(TIMESTAMPADD(HOUR, 8, CURRENT_TIMESTAMP),'yyyy-MM-dd HH:mm:ss'),1,10) as order_day,"+
                         "   HOUR(TUMBLE_START(createTime, INTERVAL '1' HOUR)) as hour_of_day," +
                         "   count(distinct orderId) order_num," +
                         " from  " + source_table_name+
@@ -75,14 +75,14 @@ public class BuyCntPreHour {
 
         //计算结果sink到dws层kafka
         String insertSQL = "INSERT INTO "+kafka_sink_table+
-                " SELECT  day,hour_of_day,order_num  FROM view_BuyCntPreHour";
+                " SELECT  order_day,hour_of_day,order_num  FROM view_BuyCntPreHour";
 
         tableEnv.sqlUpdate(insertSQL);
 
         //dws汇总层结果sink到app层es TO
         String es_rs_table = "buy_orders_per_hour";
         String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day string,\n" +
+                "    order_day string,\n" +
                 "    hour_of_day BIGINT,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
@@ -99,8 +99,8 @@ public class BuyCntPreHour {
 
         //计算结果sink到dws层kafka
         String insertESSQL = "INSERT INTO "+es_rs_table+
-                " SELECT  day,hour_of_day,max(order_num)  FROM "+kafka_sink_table+
-                " group by day,hour_of_day";
+                " SELECT  order_day,hour_of_day,max(order_num)  FROM "+kafka_sink_table+
+                " group by order_day,hour_of_day";
         tableEnv.sqlUpdate(insertESSQL);
 
 
