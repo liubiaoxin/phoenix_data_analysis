@@ -72,7 +72,7 @@ public class DwdOrders2Kafka {
                 " province, " +
                 " CAST(createTime as TIMESTAMP) createTime" +
                 " FROM "+source_hbase_table+
-                " where  substring(createTime,1,10)=substring(DATE_FORMAT(TIMESTAMPADD(HOUR, 8, CURRENT_TIMESTAMP),'yyyy-MM-dd HH:mm:ss'),1,10)";
+                " where  substring(createTime,1,13)=substring(DATE_FORMAT(TIMESTAMPADD(HOUR, 8, CURRENT_TIMESTAMP),'yyyy-MM-dd HH:mm:ss'),1,13)";
 
         tableEnv.sqlUpdate(insertSQL);
         fsEnv.execute(DwdOrders2Kafka.class.toString());
