@@ -64,7 +64,7 @@ public class BuyCntPreHour {
         //计算逻辑结果注册临时表
         String resultSql="select substring(DATE_FORMAT(TIMESTAMPADD(HOUR, 8, CURRENT_TIMESTAMP),'yyyy-MM-dd HH:mm:ss'),1,10) as order_day,"+
                         "   HOUR(TUMBLE_START(createTime, INTERVAL '1' HOUR)) as hour_of_day," +
-                        "   count(distinct orderId) order_num," +
+                        "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
                         " group by TUMBLE(createTime, INTERVAL '1' HOUR)";
 
