@@ -27,7 +27,7 @@ public class TestQueryHbase {
 
 
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
-        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment();
+        StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(fsEnv, fsSettings);
 
         String  sql = args[0];
