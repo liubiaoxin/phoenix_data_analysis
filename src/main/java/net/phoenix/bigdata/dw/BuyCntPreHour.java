@@ -156,7 +156,7 @@ public class BuyCntPreHour {
 
         //注册APP层ES结果表
         String es_rs_table2 = "buy_orders_per_minute";
-        String es_table2 = "CREATE TABLE " + es_rs_table2 + " ( \n" +
+        String es_table2 =  "CREATE TABLE " + es_rs_table2 + " ( \n" +
                 "    day_time_str STRING,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
