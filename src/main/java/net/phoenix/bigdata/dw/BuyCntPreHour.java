@@ -74,7 +74,7 @@ public class BuyCntPreHour {
         String resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)) day_hour_time,"+
                         "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
-                        " group by TUMBLE(createTime, INTERVAL '1' HOUR)";
+                        " group by TUMBLE(createTime, INTERVAL '1' MINUTE)";
 
         Table resultRs = tableEnv.sqlQuery(resultSql);
         resultRs.printSchema();
