@@ -154,7 +154,7 @@ public class BuyCntPreHour {
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
 
-        /*//注册APP层ES结果表
+        //注册APP层ES结果表
         String es_rs_table2 = "buy_orders_per_minute";
         String es_table2 = "CREATE TABLE " + es_rs_table2 + " ( \n" +
                 "    day_time_str STRING,\n" +
@@ -176,7 +176,7 @@ public class BuyCntPreHour {
         String insertESSQL2 = "INSERT INTO "+es_table2+
                 " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL2);*/
+        tableEnv.sqlUpdate(insertESSQL2);
 
 
         fsEnv.execute(BuyCntPreHour.class.toString());
