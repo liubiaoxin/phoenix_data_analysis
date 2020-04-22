@@ -121,7 +121,7 @@ public class BuyCntPreHour {
                 ") WITH (" +
                 "    'connector.type' = 'kafka'," +
                 "    'update-mode' = 'append',"+
-                "    'connector.properties.group.id' = 'dws_kafka_buy_orders_per_minute_group1',"+
+                "    'connector.properties.group.id' = 'dws_kafka_orders_per_minute_group1',"+
                 "    'connector.version' = 'universal'," +
                 "    'connector.topic' = '"+one_minute_sink_table+"'," +
                 "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"'," +
