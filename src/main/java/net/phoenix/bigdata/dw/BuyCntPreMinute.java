@@ -87,7 +87,7 @@ public class BuyCntPreMinute {
         //注册APP层ES结果表
         String es_rs_table = "buy_orders_per_minute";
         String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day_hour_time STRING,\n" +
+                "    day_time_str STRING,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
