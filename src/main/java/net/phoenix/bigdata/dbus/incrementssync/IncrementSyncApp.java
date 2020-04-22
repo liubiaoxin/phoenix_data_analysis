@@ -14,6 +14,7 @@ import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.api.java.functions.KeySelector;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.BroadcastStream;
@@ -38,7 +39,8 @@ public class IncrementSyncApp {
     public static void main(String[] args) throws Exception {
         //获取执行环境
         StreamExecutionEnvironment sEnv = StreamExecutionEnvironment.getExecutionEnvironment();
-        sEnv.setStateBackend(new RocksDBStateBackend("hdfs://bigdata-02:9000/flink/flink-checkpoints/"));
+        //sEnv.setStateBackend(new RocksDBStateBackend("hdfs://bigdata-02:9000/flink/flink-checkpoints/"));
+        sEnv.setStateBackend(new FsStateBackend("hdfs://bigdata-02:9000/flink/flink-checkpoints/"));
         //设置检查点
         sEnv.enableCheckpointing(5000,CheckpointingMode.EXACTLY_ONCE);
         sEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
