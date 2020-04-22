@@ -2,8 +2,6 @@ package net.phoenix.bigdata.dw;
 
 import net.phoenix.bigdata.common.config.GlobalConfig;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -13,7 +11,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-public class BuyCntPreHour {
+public class BuyCntPreMinute {
 
     public static void main(String[] args) throws  Exception{
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
@@ -39,7 +37,7 @@ public class BuyCntPreHour {
                 "    WATERMARK FOR createTime as createTime - INTERVAL '5' SECOND  -- 在ts上定义watermark，ts成为事件时间列\n" +
                 ") WITH (" +
                 "    'connector.type' = 'kafka',  -- 使用 kafka connector\n" +
-                "    'connector.properties.group.id' = 'dwd_kafka_orders_group1',"+
+                "    'connector.properties.group.id' = 'dwd_kafka_orders_group9',"+
                 "    'connector.version' = 'universal',  -- kafka 版本，universal 支持 0.11 以上的版本\n" +
                 "    'connector.topic' = '"+source_table_name+"',  -- kafka topic\n" +
                 "    'connector.startup-mode' = 'latest-offset',  -- 从起始 offset 开始读取\n" +
@@ -50,7 +48,7 @@ public class BuyCntPreHour {
         tableEnv.sqlUpdate(dwd_kafka_orders);
 
         //kafka sink
-        String kafka_sink_table = "dws_kafka_buy_orders_per_hours";
+        String kafka_sink_table = "dws_kafka_buy_orders_per_minute";
         String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
                 "    order_day STRING," +
                 "    hour_of_day BIGINT," +
@@ -58,7 +56,7 @@ public class BuyCntPreHour {
                 ") WITH (" +
                 "    'connector.type' = 'kafka'," +
                 "    'update-mode' = 'append',"+
-                "    'connector.properties.group.id' = 'dws_kafka_buy_orders_per_hours_group1',"+
+                "    'connector.properties.group.id' = 'dws_kafka_buy_orders_per_minute_group9',"+
                 "    'connector.version' = 'universal'," +
                 "    'connector.topic' = '"+kafka_sink_table+"'," +
                 "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"'," +
@@ -112,7 +110,7 @@ public class BuyCntPreHour {
         tableEnv.sqlUpdate(insertESSQL);
 
 
-        fsEnv.execute(BuyCntPreHour.class.toString());
+        fsEnv.execute(BuyCntPreMinute.class.toString());
 
 
     }
