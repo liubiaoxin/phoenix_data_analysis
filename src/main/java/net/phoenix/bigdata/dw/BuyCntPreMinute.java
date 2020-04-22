@@ -49,8 +49,8 @@ public class BuyCntPreMinute {
 
 
         //分钟统计订单逻辑：dws分钟级结果表
-        String one_minute_sink_table = "dws_kafka_orders_per_minute";
-        String one_minute_sink_tableSQL = "CREATE TABLE " + one_minute_sink_table + "(" +
+        String kafka_sink_table = "dws_kafka_orders_per_minute";
+        String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
                 "    day_time_str STRING," +
                 "    order_num BIGINT" +
                 ") WITH (" +
@@ -58,13 +58,13 @@ public class BuyCntPreMinute {
                 "    'update-mode' = 'append',"+
                 "    'connector.properties.group.id' = 'dws_kafka_orders_per_minute_group1',"+
                 "    'connector.version' = 'universal'," +
-                "    'connector.topic' = '"+one_minute_sink_table+"'," +
+                "    'connector.topic' = '"+ kafka_sink_table +"'," +
                 "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"'," +
                 "    'connector.properties.bootstrap.servers' = '"+GlobalConfig.KAFKA_SERVERS+"'," +
                 "    'connector.startup-mode' = 'earliest-offset'," +
                 "    'format.type' = 'json'" +
                 ")";
-        tableEnv.sqlUpdate(one_minute_sink_tableSQL);
+        tableEnv.sqlUpdate(kafkaSourceSQL);
 
 
         //1分钟统计订单逻辑
@@ -78,7 +78,7 @@ public class BuyCntPreMinute {
         tableEnv.createTemporaryView("one_minute_orders_rs",tuple2DataStream1);
 
         //每分钟订单汇总结果sink到dws层kafka
-        String insert_per_minute_SQL = "INSERT INTO "+one_minute_sink_table+
+        String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
                 " SELECT  day_time_str,order_num  FROM one_minute_orders_rs";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
@@ -86,8 +86,8 @@ public class BuyCntPreMinute {
 
         //注册APP层ES结果表
         String es_rs_table = "buy_orders_per_minute";
-        String es_table ="CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day_time_str STRING,\n" +
+        String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
+                "    day_hour_time STRING,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
@@ -104,7 +104,7 @@ public class BuyCntPreMinute {
 
         //将dws层每分钟订单汇总结果 sink到APP层ES
         String insertESSQL = "INSERT INTO "+es_table+
-                " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
+                " SELECT  day_time_str,max(order_num)  FROM "+ kafka_sink_table +
                 " group by day_time_str";
         tableEnv.sqlUpdate(insertESSQL);
 
