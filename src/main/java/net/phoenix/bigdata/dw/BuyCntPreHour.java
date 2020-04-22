@@ -143,7 +143,7 @@ public class BuyCntPreHour {
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
         tableEnv.createTemporaryView("one_minute_orders_rs",tuple2DataStream1);
 
-        //每小时订单汇总结果sink到dws层kafka
+        //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+one_minute_sink_table+
                 " SELECT  day_time_str,order_num  FROM one_minute_orders_rs";
 
@@ -168,7 +168,7 @@ public class BuyCntPreHour {
         tableEnv.sqlUpdate(es_table2);
 
 
-        //将dws层每小时订单汇总结果 sink到APP层ES
+        //将dws层每分钟订单汇总结果 sink到APP层ES
         String insertESSQL2 = "INSERT INTO "+es_table2+
                 " SELECT  day_time_str,max(order_num)  FROM "+kafka_sink_table+
                 " group by day_time_str";
