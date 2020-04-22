@@ -171,7 +171,7 @@ under the License.
 			<groupId>org.apache.flink</groupId>
 			<artifactId>flink-statebackend-rocksdb_${scala.binary.version}</artifactId>
 			<version>${flink.version}</version>
-			<scope>test</scope>
+			<scope>provided</scope>
 		</dependency>
 
 
@@ -237,6 +237,12 @@ under the License.
 			<artifactId>log4j</artifactId>
 			<version>1.2.17</version>
 			<scope>runtime</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.flink</groupId>
+			<artifactId>flink-statebackend-rocksdb_2.11</artifactId>
+			<version>1.10.0</version>
+			<scope>compile</scope>
 		</dependency>
 		<!--************************others***************************-->
 
