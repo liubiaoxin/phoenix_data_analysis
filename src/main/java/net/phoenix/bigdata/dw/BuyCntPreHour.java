@@ -83,10 +83,9 @@ public class BuyCntPreHour {
         tuple2DataStream.print();
 
 
-        /*
       //每小时订单汇总结果sink到dws层kafka
         String insertSQL = "INSERT INTO "+kafka_sink_table+
-                " SELECT  day_hour_time,order_num  FROM view_BuyCntPreHour";
+                " SELECT *  FROM view_BuyCntPreHour";
 
         tableEnv.sqlUpdate(insertSQL);
 
@@ -114,7 +113,7 @@ public class BuyCntPreHour {
         String insertESSQL = "INSERT INTO "+es_rs_table+
                 " SELECT  day_hour_time,max(order_num)  FROM "+kafka_sink_table+
                 " group by day_hour_time";
-        tableEnv.sqlUpdate(insertESSQL);*/
+        tableEnv.sqlUpdate(insertESSQL);
 
 
 
