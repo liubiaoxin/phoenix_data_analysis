@@ -67,6 +67,23 @@ public class BuyCntPreHour {
                 ")";
         tableEnv.sqlUpdate(kafkaSourceSQL);
 
+        //注册APP层ES结果表
+        String es_rs_table = "buy_orders_per_hour";
+        String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
+                "    day_hour_str string,\n" +
+                "    buy_cnt BIGINT\n" +
+                ") WITH (\n" +
+                "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
+                "    'connector.version' = '7',  -- elasticsearch 版本，6 能支持 es 6+ 以及 7+ 的版本\n" +
+                "    'connector.hosts' = '"+GlobalConfig.ES_CONNECTOR_URL+"',  -- elasticsearch 地址\n" +
+                "    'connector.index' = '"+es_rs_table+"',  -- elasticsearch 索引名，相当于数据库的表名\n" +
+                "    'connector.document-type' = 'user_behavior', -- elasticsearch 的 type，相当于数据库的库名\n" +
+                "    'connector.bulk-flush.max-actions' = '1',  -- 每条数据都刷新\n" +
+                "    'format.type' = 'json',  -- 输出数据格式 json\n" +
+                "    'update-mode' = 'upsert'\n" +
+                ")";
+        tableEnv.sqlUpdate(es_table);
+
 
         //每小时订单计算逻辑生成临时表
         String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) as day_hour_str,"+
@@ -86,22 +103,7 @@ public class BuyCntPreHour {
 
         tableEnv.sqlUpdate(insertSQL);
 
-        //注册APP层ES结果表
-        String es_rs_table = "buy_orders_per_hour";
-        String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day_hour_str string,\n" +
-                "    buy_cnt BIGINT\n" +
-                ") WITH (\n" +
-                "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
-                "    'connector.version' = '7',  -- elasticsearch 版本，6 能支持 es 6+ 以及 7+ 的版本\n" +
-                "    'connector.hosts' = '"+GlobalConfig.ES_CONNECTOR_URL+"',  -- elasticsearch 地址\n" +
-                "    'connector.index' = '"+es_rs_table+"',  -- elasticsearch 索引名，相当于数据库的表名\n" +
-                "    'connector.document-type' = 'user_behavior', -- elasticsearch 的 type，相当于数据库的库名\n" +
-                "    'connector.bulk-flush.max-actions' = '1',  -- 每条数据都刷新\n" +
-                "    'format.type' = 'json',  -- 输出数据格式 json\n" +
-                "    'update-mode' = 'upsert'\n" +
-                ")";
-        tableEnv.sqlUpdate(es_table);
+
 
         //将dws层每小时订单汇总结果 sink到APP层ES
         String insertESSQL = "INSERT INTO "+es_rs_table+
