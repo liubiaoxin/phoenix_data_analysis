@@ -71,7 +71,7 @@ public class BuyCntPreHour {
 
 
         //每小时订单计算逻辑生成临时表
-        String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) as day_hour_time,"+
+        String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) day_hour_time,"+
                         "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
                         " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13),TUMBLE(createTime, INTERVAL '1' MINUTE)";
@@ -139,7 +139,7 @@ public class BuyCntPreHour {
 
 
         //1分钟统计订单逻辑
-        String one_minute_resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16) as day_time_str,"+
+        String one_minute_resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16) day_time_str,"+
                 "   count(distinct orderId) order_num" +
                 " from  " + source_table_name+
                 " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16)," +
