@@ -118,7 +118,7 @@ public class BuyCntPreHour {
 
 
 
-        //分钟统计订单逻辑：dws分钟级结果表
+       /* //分钟统计订单逻辑：dws分钟级结果表
         String one_minute_sink_table = "dws_kafka_orders_per_minute";
         String one_minute_sink_tableSQL = "CREATE TABLE " + one_minute_sink_table + "(" +
                 "    day_time_str STRING," +
@@ -176,7 +176,7 @@ public class BuyCntPreHour {
         String insertESSQL2 = "INSERT INTO "+es_table2+
                 " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL2);
+        tableEnv.sqlUpdate(insertESSQL2);*/
 
 
         fsEnv.execute(BuyCntPreHour.class.toString());
