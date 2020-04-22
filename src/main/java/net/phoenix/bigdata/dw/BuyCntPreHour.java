@@ -74,14 +74,14 @@ public class BuyCntPreHour {
         String resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)) day_hour_time,"+
                         "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
-                        " group by TUMBLE(createTime, INTERVAL '1' MINUTE)";
+                        " group by TUMBLE(createTime, INTERVAL '1' HOUR)";
 
         Table resultRs = tableEnv.sqlQuery(resultSql);
-        resultRs.printSchema();
+        //resultRs.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
         tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
 
-        tuple2DataStream.print();
+        //tuple2DataStream.print();
 
 
       //每小时订单汇总结果sink到dws层kafka
@@ -118,7 +118,7 @@ public class BuyCntPreHour {
 
 
 
-       /* //分钟统计订单逻辑：dws分钟级结果表
+        //分钟统计订单逻辑：dws分钟级结果表
         String one_minute_sink_table = "dws_kafka_orders_per_minute";
         String one_minute_sink_tableSQL = "CREATE TABLE " + one_minute_sink_table + "(" +
                 "    day_time_str STRING," +
@@ -138,7 +138,7 @@ public class BuyCntPreHour {
 
 
         //1分钟统计订单逻辑
-        String one_minute_resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16) day_time_str,"+
+        String one_minute_resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16)) day_time_str,"+
                 "   count(distinct orderId) order_num" +
                 " from  " + source_table_name+
                 " group by TUMBLE(createTime, INTERVAL '1' MINUTE)";
@@ -176,7 +176,7 @@ public class BuyCntPreHour {
         String insertESSQL2 = "INSERT INTO "+es_table2+
                 " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL2);*/
+        tableEnv.sqlUpdate(insertESSQL2);
 
 
         fsEnv.execute(BuyCntPreHour.class.toString());
