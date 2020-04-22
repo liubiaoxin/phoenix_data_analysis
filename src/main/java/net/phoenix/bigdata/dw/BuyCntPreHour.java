@@ -154,7 +154,7 @@ public class BuyCntPreHour {
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
 
-        //注册APP层ES结果表
+        /*//注册APP层ES结果表
         String es_rs_table2 = "buy_orders_per_minute";
         String es_table2 = "CREATE TABLE " + es_rs_table2 + " ( \n" +
                 "    day_time_str STRING,\n" +
@@ -163,7 +163,7 @@ public class BuyCntPreHour {
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
                 "    'connector.version' = '7',  -- elasticsearch 版本，6 能支持 es 6+ 以及 7+ 的版本\n" +
                 "    'connector.hosts' = '"+GlobalConfig.ES_CONNECTOR_URL+"',  -- elasticsearch 地址\n" +
-                "    'connector.index' = '"+es_rs_table+"',  -- elasticsearch 索引名，相当于数据库的表名\n" +
+                "    'connector.index' = '"+es_rs_table2+"',  -- elasticsearch 索引名，相当于数据库的表名\n" +
                 "    'connector.document-type' = 'user_behavior', -- elasticsearch 的 type，相当于数据库的库名\n" +
                 "    'connector.bulk-flush.max-actions' = '1',  -- 每条数据都刷新\n" +
                 "    'format.type' = 'json',  -- 输出数据格式 json\n" +
@@ -176,7 +176,7 @@ public class BuyCntPreHour {
         String insertESSQL2 = "INSERT INTO "+es_table2+
                 " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL2);
+        tableEnv.sqlUpdate(insertESSQL2);*/
 
 
         fsEnv.execute(BuyCntPreHour.class.toString());
