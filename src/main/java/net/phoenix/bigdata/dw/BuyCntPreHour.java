@@ -77,6 +77,7 @@ public class BuyCntPreHour {
                         " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13),TUMBLE(createTime, INTERVAL '1' MINUTE)";
 
         Table resultRs = tableEnv.sqlQuery(resultSql);
+        resultRs.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
         tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
 
@@ -84,7 +85,7 @@ public class BuyCntPreHour {
 
 
       //每小时订单汇总结果sink到dws层kafka
-        String insertSQL = "INSERT INTO "+kafka_sink_table+
+        /*String insertSQL = "INSERT INTO "+kafka_sink_table+
                 " SELECT *  FROM view_BuyCntPreHour";
 
         tableEnv.sqlUpdate(insertSQL);
@@ -113,7 +114,7 @@ public class BuyCntPreHour {
         String insertESSQL = "INSERT INTO "+es_rs_table+
                 " SELECT  day_hour_time,max(order_num)  FROM "+kafka_sink_table+
                 " group by day_hour_time";
-        tableEnv.sqlUpdate(insertESSQL);
+        tableEnv.sqlUpdate(insertESSQL);*/
 
 
 
