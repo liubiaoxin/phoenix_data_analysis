@@ -85,12 +85,11 @@ public class BuyCntPreHour {
 
 
       //每小时订单汇总结果sink到dws层kafka
-        /*String insertSQL = "INSERT INTO "+kafka_sink_table+
-                " SELECT *  FROM view_BuyCntPreHour";
-
+        String insertSQL = "INSERT INTO "+kafka_sink_table+
+                " SELECT day_hour_time,order_num  FROM view_BuyCntPreHour";
         tableEnv.sqlUpdate(insertSQL);
 
-
+        /*
 
 
         //注册APP层ES结果表
