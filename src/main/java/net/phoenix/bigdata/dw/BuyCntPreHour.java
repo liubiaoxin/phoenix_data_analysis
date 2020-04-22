@@ -2,6 +2,9 @@ package net.phoenix.bigdata.dw;
 
 import net.phoenix.bigdata.common.config.GlobalConfig;
 import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
+import org.apache.flink.streaming.api.CheckpointingMode;
+import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 import org.apache.flink.table.api.EnvironmentSettings;
@@ -15,7 +18,10 @@ public class BuyCntPreHour {
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(fsEnv, fsSettings);
-
+        fsEnv.setStateBackend(new RocksDBStateBackend("hdfs:///flink/flink-checkpoints/"));
+        //设置检查点
+        fsEnv.enableCheckpointing(5000,CheckpointingMode.EXACTLY_ONCE);
+        fsEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         //kafka source
         String source_table_name = "dwd_kafka_orders";
