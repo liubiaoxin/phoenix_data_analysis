@@ -2,8 +2,6 @@ package net.phoenix.bigdata.dw;
 
 import net.phoenix.bigdata.common.config.GlobalConfig;
 import org.apache.flink.api.java.tuple.Tuple2;
-import org.apache.flink.contrib.streaming.state.RocksDBStateBackend;
-import org.apache.flink.runtime.state.filesystem.FsStateBackend;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -13,7 +11,7 @@ import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
 
-public class BuyCntPreHour {
+public class BuyCntPreMinute {
 
     public static void main(String[] args) throws  Exception{
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
@@ -39,7 +37,7 @@ public class BuyCntPreHour {
                 "    WATERMARK FOR createTime as createTime - INTERVAL '5' SECOND  -- 在ts上定义watermark，ts成为事件时间列\n" +
                 ") WITH (" +
                 "    'connector.type' = 'kafka',  -- 使用 kafka connector\n" +
-                "    'connector.properties.group.id' = 'dwd_kafka_orders_group1',"+
+                "    'connector.properties.group.id' = 'dwd_kafka_orders_group2',"+
                 "    'connector.version' = 'universal',  -- kafka 版本，universal 支持 0.11 以上的版本\n" +
                 "    'connector.topic' = '"+source_table_name+"',  -- kafka topic\n" +
                 "    'connector.startup-mode' = 'latest-offset',  -- 从起始 offset 开始读取\n" +
@@ -49,52 +47,47 @@ public class BuyCntPreHour {
                 ")";
         tableEnv.sqlUpdate(dwd_kafka_orders);
 
-        //注册每小时订单kafka结果表
-        String kafka_sink_table = "dws_kafka_orders_per_hours";
-        String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
-                "    day_hour_time STRING," +
+
+        //分钟统计订单逻辑：dws分钟级结果表
+        String one_minute_sink_table = "dws_kafka_orders_per_minute";
+        String one_minute_sink_tableSQL = "CREATE TABLE " + one_minute_sink_table + "(" +
+                "    day_time_str STRING," +
                 "    order_num BIGINT" +
                 ") WITH (" +
                 "    'connector.type' = 'kafka'," +
                 "    'update-mode' = 'append',"+
-                "    'connector.properties.group.id' = 'dws_kafka_orders_per_hours_group1',"+
+                "    'connector.properties.group.id' = 'dws_kafka_orders_per_minute_group1',"+
                 "    'connector.version' = 'universal'," +
-                "    'connector.topic' = '"+kafka_sink_table+"'," +
+                "    'connector.topic' = '"+one_minute_sink_table+"'," +
                 "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"'," +
                 "    'connector.properties.bootstrap.servers' = '"+GlobalConfig.KAFKA_SERVERS+"'," +
                 "    'connector.startup-mode' = 'earliest-offset'," +
                 "    'format.type' = 'json'" +
                 ")";
-        tableEnv.sqlUpdate(kafkaSourceSQL);
+        tableEnv.sqlUpdate(one_minute_sink_tableSQL);
 
 
+        //1分钟统计订单逻辑
+        String one_minute_resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,16)) day_time_str,"+
+                "   count(distinct orderId) order_num" +
+                " from  " + source_table_name+
+                " group by TUMBLE(createTime, INTERVAL '1' MINUTE)";
+        //注册成临时表
+        Table table = tableEnv.sqlQuery(one_minute_resultSql);
+        DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
+        tableEnv.createTemporaryView("one_minute_orders_rs",tuple2DataStream1);
 
+        //每分钟订单汇总结果sink到dws层kafka
+        String insert_per_minute_SQL = "INSERT INTO "+one_minute_sink_table+
+                " SELECT  day_time_str,order_num  FROM one_minute_orders_rs";
 
-        //每小时订单计算逻辑生成临时表
-        String resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)) day_hour_time,"+
-                        "   count(distinct orderId) order_num" +
-                        " from  " + source_table_name+
-                        " group by TUMBLE(createTime, INTERVAL '1' HOUR)";
-
-        Table resultRs = tableEnv.sqlQuery(resultSql);
-        //resultRs.printSchema();
-        DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
-        tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
-
-        //tuple2DataStream.print();
-
-
-      //每小时订单汇总结果sink到dws层kafka
-        String insertSQL = "INSERT INTO "+kafka_sink_table+
-                " SELECT day_hour_time,order_num  FROM view_BuyCntPreHour";
-        tableEnv.sqlUpdate(insertSQL);
-
+        tableEnv.sqlUpdate(insert_per_minute_SQL);
 
 
         //注册APP层ES结果表
-        String es_rs_table = "buy_orders_per_hour";
-        String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day_hour_time STRING,\n" +
+        String es_rs_table = "buy_orders_per_minute";
+        String es_table ="CREATE TABLE " + es_rs_table + " ( \n" +
+                "    day_time_str STRING,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
@@ -108,13 +101,15 @@ public class BuyCntPreHour {
                 ")";
         tableEnv.sqlUpdate(es_table);
 
-        //将dws层每小时订单汇总结果 sink到APP层ES
-        String insertESSQL = "INSERT INTO "+es_rs_table+
-                " SELECT  day_hour_time,max(order_num)  FROM "+kafka_sink_table+
-                " group by day_hour_time";
+
+        //将dws层每分钟订单汇总结果 sink到APP层ES
+        String insertESSQL = "INSERT INTO "+es_table+
+                " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
+                " group by day_time_str";
         tableEnv.sqlUpdate(insertESSQL);
 
-        fsEnv.execute(BuyCntPreHour.class.toString());
+
+        fsEnv.execute(BuyCntPreMinute.class.toString());
 
 
     }
