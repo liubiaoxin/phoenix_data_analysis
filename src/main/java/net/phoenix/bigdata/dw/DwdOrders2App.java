@@ -19,7 +19,6 @@ public class DwdOrders2App {
         EnvironmentSettings fsSettings = EnvironmentSettings.newInstance().useBlinkPlanner().inStreamingMode().build();
         StreamExecutionEnvironment fsEnv = StreamExecutionEnvironment.getExecutionEnvironment().setParallelism(1);
         StreamTableEnvironment tableEnv = StreamTableEnvironment.create(fsEnv, fsSettings);
-        fsEnv.setStateBackend(new FsStateBackend("hdfs://bigdata-02:9000/flink/flink-checkpoints/"));
         //设置检查点
         fsEnv.enableCheckpointing(5000,CheckpointingMode.EXACTLY_ONCE);
         fsEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
