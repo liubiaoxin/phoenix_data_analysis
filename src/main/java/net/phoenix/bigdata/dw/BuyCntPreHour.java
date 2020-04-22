@@ -52,7 +52,7 @@ public class BuyCntPreHour {
         //注册每小时订单kafka结果表
         String kafka_sink_table = "dws_kafka_orders_per_hours";
         String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
-                "    day_hour_str STRING," +
+                "    day_hour_time STRING," +
                 "    order_num BIGINT" +
                 ") WITH (" +
                 "    'connector.type' = 'kafka'," +
@@ -67,10 +67,33 @@ public class BuyCntPreHour {
                 ")";
         tableEnv.sqlUpdate(kafkaSourceSQL);
 
+
+
+
+        //每小时订单计算逻辑生成临时表
+        String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) as day_hour_time,"+
+                        "   count(distinct orderId) order_num" +
+                        " from  " + source_table_name+
+                        " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)," +
+                        "       TUMBLE(createTime, INTERVAL '1' HOUR)";
+
+        Table resultRs = tableEnv.sqlQuery(resultSql);
+        DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
+        tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
+
+
+        //每小时订单汇总结果sink到dws层kafka
+        String insertSQL = "INSERT INTO "+kafka_sink_table+
+                " SELECT  day_hour_time,order_num  FROM view_BuyCntPreHour";
+
+        tableEnv.sqlUpdate(insertSQL);
+
+
+
         //注册APP层ES结果表
         String es_rs_table = "buy_orders_per_hour";
         String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
-                "    day_hour_str string,\n" +
+                "    day_hour_time string,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
                 "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
@@ -84,31 +107,10 @@ public class BuyCntPreHour {
                 ")";
         tableEnv.sqlUpdate(es_table);
 
-
-        //每小时订单计算逻辑生成临时表
-        String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) as day_hour_str,"+
-                        "   count(distinct orderId) order_num" +
-                        " from  " + source_table_name+
-                        " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)," +
-                        "       TUMBLE(createTime, INTERVAL '1' HOUR)";
-
-        Table resultRs = tableEnv.sqlQuery(resultSql);
-        DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
-        tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
-
-
-        //每小时订单汇总结果sink到dws层kafka
-        String insertSQL = "INSERT INTO "+kafka_sink_table+
-                " SELECT  day_hour_str,order_num  FROM view_BuyCntPreHour";
-
-        tableEnv.sqlUpdate(insertSQL);
-
-
-
         //将dws层每小时订单汇总结果 sink到APP层ES
         String insertESSQL = "INSERT INTO "+es_rs_table+
-                " SELECT  day_hour_str,max(order_num)  FROM "+kafka_sink_table+
-                " group by day_hour_str";
+                " SELECT  day_hour_time,max(order_num)  FROM "+kafka_sink_table+
+                " group by day_hour_time";
         tableEnv.sqlUpdate(insertESSQL);
 
 
