@@ -114,7 +114,7 @@ public class BuyCntPreHour {
 
 
         //分钟统计订单逻辑：dws分钟级结果表
-        String one_minute_sink_table = "dws_kafka_buy_orders_per_minute";
+        String one_minute_sink_table = "dws_kafka_orders_per_minute";
         String one_minute_sink_tableSQL = "CREATE TABLE " + one_minute_sink_table + "(" +
                 "    day_time_str STRING," +
                 "    order_num BIGINT" +
