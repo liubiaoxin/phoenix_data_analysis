@@ -71,10 +71,10 @@ public class BuyCntPreHour {
 
 
         //每小时订单计算逻辑生成临时表
-        String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) day_hour_time,"+
+        String resultSql="select max(substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13)) day_hour_time,"+
                         "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
-                        " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13),TUMBLE(createTime, INTERVAL '1' MINUTE)";
+                        " group by TUMBLE(createTime, INTERVAL '1' MINUTE)";
 
         Table resultRs = tableEnv.sqlQuery(resultSql);
         resultRs.printSchema();
