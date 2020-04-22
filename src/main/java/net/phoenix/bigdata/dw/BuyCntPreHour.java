@@ -74,7 +74,7 @@ public class BuyCntPreHour {
         String resultSql="select substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13) as day_hour_time,"+
                         "   count(distinct orderId) order_num" +
                         " from  " + source_table_name+
-                        " group by day_hour_time,TUMBLE(createTime, INTERVAL '1' MINUTE)";
+                        " group by substring(DATE_FORMAT(createTime,'yyyy-MM-dd HH:mm:ss'),1,13),TUMBLE(createTime, INTERVAL '1' MINUTE)";
 
         Table resultRs = tableEnv.sqlQuery(resultSql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(resultRs, Row.class);
