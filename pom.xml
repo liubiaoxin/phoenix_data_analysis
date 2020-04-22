@@ -21,11 +21,11 @@ under the License.
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.phoenix.bigdata</groupId>
-	<artifactId>phoenix_data_ananlysis</artifactId>
+	<artifactId>phoenix_data_analysis</artifactId>
 	<version>1.0</version>
 	<packaging>jar</packaging>
 
-	<name>phoenix_data_ananlysis</name>
+	<name>phoenix_data_analysis</name>
 	<url>http://www.myorganization.org</url>
 
 	<properties>
