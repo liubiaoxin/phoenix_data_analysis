@@ -170,7 +170,7 @@ public class BuyCntPreHour {
 
         //将dws层每分钟订单汇总结果 sink到APP层ES
         String insertESSQL2 = "INSERT INTO "+es_table2+
-                " SELECT  day_time_str,max(order_num)  FROM "+kafka_sink_table+
+                " SELECT  day_time_str,max(order_num)  FROM "+one_minute_sink_table+
                 " group by day_time_str";
         tableEnv.sqlUpdate(insertESSQL2);
 
