@@ -82,13 +82,14 @@ public class BuyCntPreHour {
         tableEnv.createTemporaryView("view_BuyCntPreHour",tuple2DataStream);
 
 
-       /* //每小时订单汇总结果sink到dws层kafka
+      //每小时订单汇总结果sink到dws层kafka
         String insertSQL = "INSERT INTO "+kafka_sink_table+
                 " SELECT  day_hour_time,order_num  FROM view_BuyCntPreHour";
 
         tableEnv.sqlUpdate(insertSQL);
 
 
+         /*
 
         //注册APP层ES结果表
         String es_rs_table = "buy_orders_per_hour";
