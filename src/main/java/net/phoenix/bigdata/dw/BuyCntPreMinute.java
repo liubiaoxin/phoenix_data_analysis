@@ -103,10 +103,10 @@ public class BuyCntPreMinute {
 
 
         //将dws层每分钟订单汇总结果 sink到APP层ES
-       /* String insertESSQL = "INSERT INTO "+es_table+
-                " SELECT  day_time_str,max(order_num)  FROM "+ kafka_sink_table +
+        String insertESSQL = "INSERT INTO "+es_table+
+                " SELECT  day_time_str,max(order_num) order_num FROM "+ kafka_sink_table +
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL);*/
+        tableEnv.sqlUpdate(insertESSQL);
 
 
         fsEnv.execute(BuyCntPreMinute.class.toString());
