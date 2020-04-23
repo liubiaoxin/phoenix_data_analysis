@@ -74,7 +74,7 @@ public class UVStatistics {
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
-        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1,"flag ,value_row ROW<day_time_str,uv>");
+        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1,"flag ,ROW<day_time_str,uv>");
 
         tuple2DataStream1.print();
 
