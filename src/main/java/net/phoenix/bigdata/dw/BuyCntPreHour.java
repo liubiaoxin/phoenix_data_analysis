@@ -51,7 +51,7 @@ public class BuyCntPreHour {
 
         //注册每小时订单kafka结果表
         String kafka_sink_table = "dws_kafka_orders_per_hours";
-        String kafkaSourceSQL = "CREATE TABLE " + kafka_sink_table + "(" +
+        String kafkaSinkTableSql = "CREATE TABLE " + kafka_sink_table + "(" +
                 "    day_hour_time STRING," +
                 "    order_num BIGINT" +
                 ") WITH (" +
@@ -65,7 +65,7 @@ public class BuyCntPreHour {
                 "    'connector.startup-mode' = 'earliest-offset'," +
                 "    'format.type' = 'json'" +
                 ")";
-        tableEnv.sqlUpdate(kafkaSourceSQL);
+        tableEnv.sqlUpdate(kafkaSinkTableSql);
 
 
 
