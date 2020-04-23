@@ -40,7 +40,7 @@ public class UVStatistics {
                 "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"',  -- zookeeper 地址\n" +
                 "    'connector.properties.bootstrap.servers' = '"+GlobalConfig.KAFKA_SERVERS+"',  -- kafka broker 地址\n" +
                 "    'format.type' = 'json'  -- 数据源格式为 json\n" +
-                ");";
+                ")";
         tableEnv.sqlUpdate(source_table_sql);
 
 
