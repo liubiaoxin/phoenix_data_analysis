@@ -63,7 +63,7 @@ public class UVStatistics {
         tableEnv.sqlUpdate(kafkaSinkSql);
 
 
-        /*//1分钟统计订单逻辑
+        //1分钟统计订单逻辑
         String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w day_time_str,"+
                 "   count(distinct user_id) OVER w AS uv" +
                 " from  " + source_table_name+
@@ -73,7 +73,9 @@ public class UVStatistics {
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
         tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1);
 
-        //每分钟订单汇总结果sink到dws层kafka
+        tuple2DataStream1.print();
+
+        /*//每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
                 " SELECT  day_time_str,uv  FROM view_per_10min_uv";
 
