@@ -1,6 +1,7 @@
 package net.phoenix.bigdata.dw;
 
 import net.phoenix.bigdata.common.config.GlobalConfig;
+import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
@@ -10,6 +11,7 @@ import org.apache.flink.table.api.EnvironmentSettings;
 import org.apache.flink.table.api.Table;
 import org.apache.flink.table.api.java.StreamTableEnvironment;
 import org.apache.flink.types.Row;
+import org.apache.flink.util.Collector;
 
 public class UVStatistics {
 
@@ -72,7 +74,7 @@ public class UVStatistics {
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
-        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1,"day_time_str,uv");
+        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1,"flag ,value_row ROW<day_time_str,uv>");
 
         tuple2DataStream1.print();
 
