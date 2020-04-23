@@ -75,13 +75,14 @@ public class UVStatistics {
 
         tuple2DataStream1.print();
 
-        /*//每分钟订单汇总结果sink到dws层kafka
+       //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
                 " SELECT  day_time_str,uv  FROM view_per_10min_uv";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
 
+         /*
         //注册APP层ES结果表
         String es_rs_table = "per_10min_uv";
         String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
