@@ -71,7 +71,7 @@ public class UVStatistics {
                 " from  " + source_table_name+
                 " WINDOW w AS(ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
         //注册成临时表
-        Table table = tableEnv.sqlQuery(per_10min_uv_sql).select("day_time_str,uv");
+        Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
         tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1);
