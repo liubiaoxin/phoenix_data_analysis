@@ -80,7 +80,7 @@ public class UVStatistics {
 
        //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
-                " SELECT  day_time_str,uv FROM view_per_10min_uv";
+                " SELECT  value_row.day_time_str,value_row.uv FROM view_per_10min_uv";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
