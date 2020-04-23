@@ -69,7 +69,7 @@ public class UVStatistics {
         String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') AS day_time_str,"+
                 "   count(distinct user_id) AS uv" +
                 " from  " + source_table_name+
-                " group by TUMBLE(createTime, INTERVAL '10' MINUTE)";
+                " group by TUMBLE(ts, INTERVAL '10' MINUTE)";
         //注册成临时表
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
