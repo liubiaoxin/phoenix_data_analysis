@@ -64,10 +64,10 @@ public class UVStatistics {
 
 
         //1分钟统计订单逻辑
-        String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w AS day_time_str,"+
+        String per_10min_uv_sql="select day_time_str,uv from ( select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w AS day_time_str,"+
                 "   count(distinct user_id) OVER w AS uv" +
                 " from  " + source_table_name+
-                " WINDOW w AS(ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
+                " WINDOW w AS(ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) ) temp";
         //注册成临时表
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
@@ -78,7 +78,7 @@ public class UVStatistics {
 
        //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
-                " SELECT  *  FROM view_per_10min_uv";
+                " SELECT  day_time_str,uv FROM view_per_10min_uv";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
