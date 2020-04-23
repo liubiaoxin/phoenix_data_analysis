@@ -69,8 +69,8 @@ public class UVStatistics {
         String per_10min_uv_sql="SELECT \n" +
                 "  MAX(SUBSTR(DATE_FORMAT(ts, 'HH:mm'),1,4) || '0') OVER w AS time_str, \n" +
                 "  COUNT(DISTINCT user_id) OVER w AS uv\n" +
-                "FROM "+source_table_name+"\n" +
-                "WINDOW w AS (ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
+                " FROM "+source_table_name+"\n" +
+                " WINDOW w AS (ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
 
         /*String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w AS timestr,"+
                 "   count(distinct user_id) OVER w AS uv" +
