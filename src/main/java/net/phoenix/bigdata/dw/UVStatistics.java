@@ -72,13 +72,13 @@ public class UVStatistics {
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
-        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1);
+        tableEnv.createTemporaryView("view_per_10min_uv",tuple2DataStream1,"day_time_str,uv");
 
         tuple2DataStream1.print();
 
        //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
-                " SELECT  f1.day_time_str,f1.uv FROM view_per_10min_uv";
+                " SELECT  day_time_str,uv FROM view_per_10min_uv";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
