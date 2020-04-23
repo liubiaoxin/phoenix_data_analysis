@@ -66,10 +66,16 @@ public class UVStatistics {
 
 
         //1分钟统计订单逻辑
-        String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w AS timestr,"+
+        String per_10min_uv_sql="SELECT \n" +
+                "  MAX(SUBSTR(DATE_FORMAT(ts, 'HH:mm'),1,4) || '0') OVER w AS time_str, \n" +
+                "  COUNT(DISTINCT user_id) OVER w AS uv\n" +
+                "FROM "+source_table_name+"\n" +
+                "WINDOW w AS (ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
+
+        /*String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w AS timestr,"+
                 "   count(distinct user_id) OVER w AS uv" +
                 " from  " + source_table_name+
-                " WINDOW w AS(ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";
+                " WINDOW w AS(ORDER BY proctime ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW)";*/
         //注册成临时表
         Table table = tableEnv.sqlQuery(per_10min_uv_sql);
         table.printSchema();
@@ -80,7 +86,7 @@ public class UVStatistics {
 
        //每分钟订单汇总结果sink到dws层kafka
         String insert_per_minute_SQL = "INSERT INTO "+ kafka_sink_table +
-                " SELECT  timestr,uv FROM view_per_10min_uv";
+                " SELECT  time_str,uv FROM view_per_10min_uv";
 
         tableEnv.sqlUpdate(insert_per_minute_SQL);
 
