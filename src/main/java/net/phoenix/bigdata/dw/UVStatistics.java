@@ -63,7 +63,7 @@ public class UVStatistics {
         tableEnv.sqlUpdate(kafkaSinkSql);
 
 
-        //1分钟统计订单逻辑
+        /*//1分钟统计订单逻辑
         String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') OVER w day_time_str,"+
                 "   count(distinct user_id) OVER w AS uv" +
                 " from  " + source_table_name+
@@ -101,7 +101,7 @@ public class UVStatistics {
         String insertESSQL = "INSERT INTO "+es_rs_table+
                 " SELECT  day_time_str,max(uv)  FROM "+kafka_sink_table+
                 " group by day_time_str";
-        tableEnv.sqlUpdate(insertESSQL);
+        tableEnv.sqlUpdate(insertESSQL);*/
 
 
         fsEnv.execute(UVStatistics.class.toString());
