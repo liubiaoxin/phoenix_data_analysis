@@ -107,7 +107,14 @@ public class CategoryTopN {
 
         Table table = tableEnv.sqlQuery(view_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
-        tuple2DataStream.print();
+        //tuple2DataStream.print();
+        tableEnv.createTemporaryView("dwd_rich_user_behavior",tuple2DataStream);
+
+        Table table1 = tableEnv.sqlQuery("select user_id,item_id,behavior,category_name from dwd_rich_user_behavior");
+        DataStream<Row> rowDataStream = tableEnv.toAppendStream(table1, Row.class);
+        rowDataStream.print();
+
+
         fsEnv.execute(CategoryTopN.class.toString());
 
 
