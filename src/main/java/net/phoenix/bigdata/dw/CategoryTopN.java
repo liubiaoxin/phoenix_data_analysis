@@ -22,7 +22,7 @@ public class CategoryTopN {
         fsEnv.setStreamTimeCharacteristic(TimeCharacteristic.EventTime);
 
         //读取ODS层kafka topic为ods_log_origin注册为日志用户行为表dwd_user_behavior
-        String source_table_name = "dwd_user_behavior_catetory";
+        String source_table_name = "dwd_user_behavior";
         String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
                 "    user_id INT,\n" +
                 "    item_id INT,\n" +
@@ -64,7 +64,7 @@ public class CategoryTopN {
 
         //dws汇总表
         String sink_table_name = "dws_category_topN";
-        String sink_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
+        String sink_table_sql = "CREATE TABLE "+sink_table_name+" (\n" +
                 "    category_name STRING,\n" +
                 "    order_num BIGINT\n" +
                 ") WITH (\n" +
