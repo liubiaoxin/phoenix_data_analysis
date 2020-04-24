@@ -84,7 +84,7 @@ public class CategoryTopN {
 
         String view_sql="CREATE VIEW rich_user_behavior AS\n" +
                 "SELECT U.user_id, U.item_id, U.behavior, \n" +
-                "  CASE C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
+                "  CASE WHEN C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
                 "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
