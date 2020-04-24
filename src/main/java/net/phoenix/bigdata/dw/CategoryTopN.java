@@ -81,6 +81,9 @@ public class CategoryTopN {
                 ")";
         tableEnv.sqlUpdate(es_table_sql);
 
+        Table table1 = tableEnv.sqlQuery("select * from " + source_table_name);
+        DataStream<Row> rowDataStream = tableEnv.toAppendStream(table1, Row.class);
+        rowDataStream.print();
 
 
         String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
