@@ -59,7 +59,7 @@ public class CategoryTopN {
                 "    'connector.password' = '123456',\n" +
                 "    'connector.lookup.cache.max-rows' = '5000',\n" +
                 "    'connector.lookup.cache.ttl' = '10min'\n" +
-                ");";
+                ")";
         tableEnv.sqlUpdate(category_table_sql);
 
         Table table = tableEnv.sqlQuery("select * from dim_category");
