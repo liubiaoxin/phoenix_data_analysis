@@ -111,12 +111,22 @@ public class CategoryTopN {
         tableEnv.createTemporaryView("dwd_rich_user_behavior",tuple2DataStream);
 
 
-        //汇总结果sink到dws
-        String insertDwsSql="INSERT INTO "+sink_table_name+"\n" +
-                "SELECT category_name, COUNT(*) order_num\n" +
+
+        //dws汇总计算注册临时表
+        String calSql="SELECT category_name, COUNT(*) order_num\n" +
                 "FROM dwd_rich_user_behavior\n" +
                 "WHERE behavior = 'buy'\n" +
                 "GROUP BY category_name";
+
+        Table dwsViewRs = tableEnv.sqlQuery(calSql);
+        DataStream<Tuple2<Boolean, Row>> dwsViewRsStream = tableEnv.toRetractStream(dwsViewRs, Row.class);
+        tableEnv.createTemporaryView("dwsViewRs",dwsViewRsStream);
+
+
+        //汇总结果sink到dws
+        String insertDwsSql="INSERT INTO "+sink_table_name+"\n" +
+                "SELECT category_name,order_num\n" +
+                "FROM dwsViewRs";
 
         tableEnv.sqlUpdate(insertDwsSql);
 
