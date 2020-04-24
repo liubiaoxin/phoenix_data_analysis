@@ -24,9 +24,9 @@ public class CategoryTopN {
         //读取ODS层kafka topic为ods_log_origin注册为日志用户行为表dwd_user_behavior
         String source_table_name = "dwd_user_behavior";
         String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
-                "    user_id BIGINT,\n" +
-                "    item_id BIGINT,\n" +
-                "    category_id BIGINT,\n" +
+                "    user_id INT,\n" +
+                "    item_id INT,\n" +
+                "    category_id INT,\n" +
                 "    behavior STRING,\n" +
                 "    ts TIMESTAMP(3),\n" +
                 "    proctime as PROCTIME(),   -- 通过计算列产生一个处理时间列\n" +
@@ -87,7 +87,7 @@ public class CategoryTopN {
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
                 "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
-                "ON U.category_id = CAST(C.sub_category_id AS BIGINT)";
+                "ON U.category_id = C.sub_category_id";
 
         Table table = tableEnv.sqlQuery(rich_user_behavior_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
