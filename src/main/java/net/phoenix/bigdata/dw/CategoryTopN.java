@@ -26,7 +26,7 @@ public class CategoryTopN {
         String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
                 "    user_id BIGINT,\n" +
                 "    item_id BIGINT,\n" +
-                "    category_id BIGINT,\n" +
+                "    category_id INT,\n" +
                 "    behavior STRING,\n" +
                 "    ts TIMESTAMP(3),\n" +
                 "    proctime as PROCTIME(),   -- 通过计算列产生一个处理时间列\n" +
