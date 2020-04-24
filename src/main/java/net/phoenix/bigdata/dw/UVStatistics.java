@@ -65,7 +65,7 @@ public class UVStatistics {
         tableEnv.sqlUpdate(kafkaSinkSql);
 
 
-        //1分钟统计订单逻辑
+        //10分钟统计订单逻辑
         String per_10min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,15)||'0') AS day_time_str,"+
                 "   count(distinct user_id) AS uv" +
                 " from  " + source_table_name+

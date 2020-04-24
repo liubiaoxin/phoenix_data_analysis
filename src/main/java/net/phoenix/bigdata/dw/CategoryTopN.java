@@ -81,9 +81,21 @@ public class CategoryTopN {
                 ")";
         tableEnv.sqlUpdate(es_table_sql);
 
-        Table table1 = tableEnv.sqlQuery("select * from " + source_table_name);
-        DataStream<Row> rowDataStream = tableEnv.toAppendStream(table1, Row.class);
-        rowDataStream.print();
+
+
+        //1分钟统计订单逻辑
+        String per_1min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,16)) AS day_time_str,"+
+                "   count(distinct user_id) AS uv" +
+                " from  " + source_table_name+
+                " group by TUMBLE(ts, INTERVAL '1' MINUTE)";
+        //注册成临时表
+        Table table = tableEnv.sqlQuery(per_1min_uv_sql);
+
+        //table.printSchema();
+        DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
+        tableEnv.createTemporaryView("view_per_1min_uv",tuple2DataStream1);
+
+        tuple2DataStream1.print();
 
 
         /*String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
