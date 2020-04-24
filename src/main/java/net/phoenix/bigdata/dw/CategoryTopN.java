@@ -44,7 +44,6 @@ public class CategoryTopN {
         tableEnv.sqlUpdate(source_table_sql);
 
         //mysql维表注册
-
         String category_table_name="dim_category";
         String category_table_sql="CREATE TABLE "+category_table_name+" (\n" +
                 "    sub_category_id INT,  -- 子类目\n" +
@@ -61,6 +60,24 @@ public class CategoryTopN {
                 "    'connector.lookup.cache.ttl' = '10min'\n" +
                 ")";
         tableEnv.sqlUpdate(category_table_sql);
+
+
+        //dws汇总表
+        String sink_table_name = "dws_category_topN";
+        String sink_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
+                "    category_name STRING,\n" +
+                "    order_num BIGINT\n" +
+                ") WITH (\n" +
+                "    'connector.type' = 'kafka',  -- 使用 kafka connector\n" +
+                "    'connector.properties.group.id' = '"+sink_table_name+"_group1',"+
+                "    'connector.version' = 'universal',  -- kafka 版本，universal 支持 0.11 以上的版本\n" +
+                "    'connector.topic' = '"+sink_table_name+"',  -- kafka topic\n" +
+                "    'connector.startup-mode' = 'earliest-offset',  -- 从起始 offset 开始读取\n" +
+                "    'connector.properties.zookeeper.connect' = '"+GlobalConfig.KAFKA_ZK_CONNECTS+"',  -- zookeeper 地址\n" +
+                "    'connector.properties.bootstrap.servers' = '"+GlobalConfig.KAFKA_SERVERS+"',  -- kafka broker 地址\n" +
+                "    'format.type' = 'json'  -- 数据源格式为 json\n" +
+                ")";
+        tableEnv.sqlUpdate(sink_table_sql);
 
 
 
@@ -94,14 +111,23 @@ public class CategoryTopN {
         tableEnv.createTemporaryView("dwd_rich_user_behavior",tuple2DataStream);
 
 
-        //最总结果sink到ES
-        String insertEsSql="INSERT INTO "+es_rs_table+"\n" +
-                "SELECT category_name, COUNT(*) buy_cnt\n" +
+        //汇总结果sink到dws
+        String insertDwsSql="INSERT INTO "+sink_table_name+"\n" +
+                "SELECT category_name, COUNT(*) order_num\n" +
                 "FROM dwd_rich_user_behavior\n" +
                 "WHERE behavior = 'buy'\n" +
                 "GROUP BY category_name";
 
-        tableEnv.sqlUpdate(insertEsSql);
+        tableEnv.sqlUpdate(insertDwsSql);
+
+
+        //汇总结果从dws sink到ES
+        String insertESSql="INSERT INTO "+es_rs_table+"\n" +
+                "SELECT category_name, max(order_num)\n" +
+                "FROM "+sink_table_name+"\n" +
+                "GROUP BY category_name";
+
+        tableEnv.sqlUpdate(insertESSql);
 
 
         fsEnv.execute(CategoryTopN.class.toString());
