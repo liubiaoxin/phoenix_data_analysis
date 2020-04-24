@@ -98,21 +98,31 @@ public class CategoryTopN {
         tuple2DataStream1.print();*/
 
 
-        String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
+        String rich_user_behavior_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
                 "  CASE WHEN C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
                 "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" C\n" +
                 "ON U.category_id = C.sub_category_id";
 
-        Table table = tableEnv.sqlQuery(view_sql);
+        Table table = tableEnv.sqlQuery(rich_user_behavior_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
-        //tuple2DataStream.print();
         tableEnv.createTemporaryView("dwd_rich_user_behavior",tuple2DataStream);
 
-        Table table1 = tableEnv.sqlQuery("select user_id,item_id,behavior,category_name from dwd_rich_user_behavior");
+
+
+        /*Table table1 = tableEnv.sqlQuery("select user_id,item_id,behavior,category_name from dwd_rich_user_behavior");
         DataStream<Row> rowDataStream = tableEnv.toAppendStream(table1, Row.class);
-        rowDataStream.print();
+        rowDataStream.print();*/
+
+
+        String insertEsSql="INSERT INTO "+es_rs_table+"\n" +
+                "SELECT category_name, COUNT(*) buy_cnt\n" +
+                "FROM dwd_rich_user_behavior\n" +
+                "WHERE behavior = 'buy'\n" +
+                "GROUP BY category_name";
+
+        tableEnv.sqlUpdate(insertEsSql);
 
 
         fsEnv.execute(CategoryTopN.class.toString());
