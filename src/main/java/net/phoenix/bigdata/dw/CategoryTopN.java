@@ -83,7 +83,7 @@ public class CategoryTopN {
 
 
 
-        //1分钟统计订单逻辑
+        /*//1分钟统计订单逻辑
         String per_1min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,16)) AS day_time_str,"+
                 "   count(distinct user_id) AS uv" +
                 " from  " + source_table_name+
@@ -95,19 +95,19 @@ public class CategoryTopN {
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
         tableEnv.createTemporaryView("view_per_1min_uv",tuple2DataStream1);
 
-        tuple2DataStream1.print();
+        tuple2DataStream1.print();*/
 
 
-        /*String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
+        String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
                 "  CASE WHEN C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
-                "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
+                "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" C\n" +
                 "ON U.category_id = C.sub_category_id";
 
         Table table = tableEnv.sqlQuery(view_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
-        tuple2DataStream.print();*/
+        tuple2DataStream.print();
         fsEnv.execute(CategoryTopN.class.toString());
 
 
