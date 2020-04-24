@@ -23,7 +23,7 @@ public class CategoryTopN {
 
         //读取ODS层kafka topic为ods_log_origin注册为日志用户行为表dwd_user_behavior
         String source_table_name = "dwd_user_behavior";
-        String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
+        /*String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
                 "    user_id INT,\n" +
                 "    item_id INT,\n" +
                 "    category_id INT,\n" +
@@ -41,7 +41,7 @@ public class CategoryTopN {
                 "    'connector.properties.bootstrap.servers' = '"+GlobalConfig.KAFKA_SERVERS+"',  -- kafka broker 地址\n" +
                 "    'format.type' = 'json'  -- 数据源格式为 json\n" +
                 ")";
-        tableEnv.sqlUpdate(source_table_sql);
+        tableEnv.sqlUpdate(source_table_sql);*/
 
         //mysql维表注册
         String category_table_name="dim_category";
