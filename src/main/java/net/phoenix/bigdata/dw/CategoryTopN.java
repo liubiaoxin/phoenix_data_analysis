@@ -26,7 +26,7 @@ public class CategoryTopN {
         String source_table_sql = "CREATE TABLE "+source_table_name+" (\n" +
                 "    user_id BIGINT,\n" +
                 "    item_id BIGINT,\n" +
-                "    category_id INT,\n" +
+                "    category_id BIGINT,\n" +
                 "    behavior STRING,\n" +
                 "    ts TIMESTAMP(3),\n" +
                 "    proctime as PROCTIME(),   -- 通过计算列产生一个处理时间列\n" +
@@ -86,7 +86,7 @@ public class CategoryTopN {
         rowDataStream.print();
 
 
-        String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
+        /*String view_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
                 "  CASE WHEN C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
@@ -95,7 +95,7 @@ public class CategoryTopN {
 
         Table table = tableEnv.sqlQuery(view_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
-        tuple2DataStream.print();
+        tuple2DataStream.print();*/
         fsEnv.execute(CategoryTopN.class.toString());
 
 
