@@ -43,7 +43,7 @@ public class CategoryTopN {
                 ")";
         tableEnv.sqlUpdate(source_table_sql);
 
-        //mysql维表source
+        //mysql维表注册
 
         String category_table_name="dim_category";
         String category_table_sql="CREATE TABLE "+category_table_name+" (\n" +
@@ -64,7 +64,7 @@ public class CategoryTopN {
 
 
 
-        //ES结果表
+        //ES结果表注册
         String es_rs_table="top_category";
         String es_table_sql="CREATE TABLE "+es_rs_table+" (\n" +
                 "    category_name STRING,  -- 类目名称\n" +
@@ -81,28 +81,12 @@ public class CategoryTopN {
                 ")";
         tableEnv.sqlUpdate(es_table_sql);
 
-
-
-        /*//1分钟统计订单逻辑
-        String per_1min_uv_sql="select max(substring(DATE_FORMAT(ts,'yyyy-MM-dd HH:mm:ss'),1,16)) AS day_time_str,"+
-                "   count(distinct user_id) AS uv" +
-                " from  " + source_table_name+
-                " group by TUMBLE(ts, INTERVAL '1' MINUTE)";
-        //注册成临时表
-        Table table = tableEnv.sqlQuery(per_1min_uv_sql);
-
-        //table.printSchema();
-        DataStream<Tuple2<Boolean, Row>> tuple2DataStream1 = tableEnv.toRetractStream(table, Row.class);
-        tableEnv.createTemporaryView("view_per_1min_uv",tuple2DataStream1);
-
-        tuple2DataStream1.print();*/
-
-
+        //join mysql维表，丰富dwd_user_behavior表维度
         String rich_user_behavior_sql=" SELECT U.user_id, U.item_id, U.behavior, \n" +
                 "  CASE WHEN C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
-                "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" C\n" +
+                "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
                 "ON U.category_id = C.sub_category_id";
 
         Table table = tableEnv.sqlQuery(rich_user_behavior_sql);
@@ -110,12 +94,7 @@ public class CategoryTopN {
         tableEnv.createTemporaryView("dwd_rich_user_behavior",tuple2DataStream);
 
 
-
-        /*Table table1 = tableEnv.sqlQuery("select user_id,item_id,behavior,category_name from dwd_rich_user_behavior");
-        DataStream<Row> rowDataStream = tableEnv.toAppendStream(table1, Row.class);
-        rowDataStream.print();*/
-
-
+        //最总结果sink到ES
         String insertEsSql="INSERT INTO "+es_rs_table+"\n" +
                 "SELECT category_name, COUNT(*) buy_cnt\n" +
                 "FROM dwd_rich_user_behavior\n" +
