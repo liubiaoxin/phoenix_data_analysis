@@ -48,7 +48,7 @@ public class CategoryTopN {
         String category_table_name="dim_category";
         String category_table_sql="CREATE TABLE "+category_table_name+" (\n" +
                 "    sub_category_id BIGINT,  -- 子类目\n" +
-                "    parent_category_id BIGINT -- 顶级类目\n" +
+                "    parent_category_id BIGINT, -- 顶级类目\n" +
                 "    parent_category_name STRING -- 顶级类目名称\n" +
                 ") WITH (\n" +
                 "    'connector.type' = 'jdbc',\n" +
