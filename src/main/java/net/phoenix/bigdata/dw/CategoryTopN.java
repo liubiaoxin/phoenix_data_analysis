@@ -87,7 +87,7 @@ public class CategoryTopN {
                 "    ELSE '其他'\n" +
                 "  END AS category_name\n" +
                 "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
-                "ON U.category_id = C.sub_category_id";
+                "ON U.category_id = CAST(C.sub_category_id AS BIGINT)";
 
         Table table = tableEnv.sqlQuery(rich_user_behavior_sql);
         DataStream<Tuple2<Boolean, Row>> tuple2DataStream = tableEnv.toRetractStream(table, Row.class);
