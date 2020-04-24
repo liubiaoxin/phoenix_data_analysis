@@ -1,7 +1,6 @@
 package net.phoenix.bigdata.dw;
 
 import net.phoenix.bigdata.common.config.GlobalConfig;
-import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.streaming.api.CheckpointingMode;
 import org.apache.flink.streaming.api.TimeCharacteristic;
 import org.apache.flink.streaming.api.datastream.DataStream;
@@ -62,10 +61,40 @@ public class CategoryTopN {
                 ")";
         tableEnv.sqlUpdate(category_table_sql);
 
-        Table table = tableEnv.sqlQuery("select * from dim_category");
+
+
+        //ES结果表
+        String es_rs_table="top_category";
+        String es_table_sql="CREATE TABLE "+es_rs_table+" (\n" +
+                "    category_name STRING,  -- 类目名称\n" +
+                "    buy_cnt BIGINT  -- 销量\n" +
+                ") WITH (\n" +
+                "    'connector.type' = 'elasticsearch', -- 使用 elasticsearch connector\n" +
+                "    'connector.version' = '7',  -- elasticsearch 版本，6 能支持 es 6+ 以及 7+ 的版本\n" +
+                "    'connector.hosts' = '"+GlobalConfig.ES_CONNECTOR_URL+"',  -- elasticsearch 地址\n" +
+                "    'connector.index' = '"+es_rs_table+"',  -- elasticsearch 索引名，相当于数据库的表名\n" +
+                "    'connector.document-type' = 'user_behavior', -- elasticsearch 的 type，相当于数据库的库名\n" +
+                "    'connector.bulk-flush.max-actions' = '1',  -- 每条数据都刷新\n" +
+                "    'format.type' = 'json',  -- 输出数据格式 json\n" +
+                "    'update-mode' = 'upsert'\n" +
+                ")";
+        tableEnv.sqlUpdate(es_table_sql);
+
+
+
+        String view_sql="CREATE VIEW rich_user_behavior AS\n" +
+                "SELECT U.user_id, U.item_id, U.behavior, \n" +
+                "  CASE C.parent_category_id in (1,2,3,4,5,6,7,8) THEN C.parent_category_name\n" +
+                "    ELSE '其他'\n" +
+                "  END AS category_name\n" +
+                "FROM "+source_table_name+" AS U LEFT JOIN "+category_table_name+" FOR SYSTEM_TIME AS OF U.proctime AS C\n" +
+                "ON U.category_id = C.sub_category_id";
+
+        tableEnv.sqlUpdate(view_sql);
+
+        Table table = tableEnv.sqlQuery("select * from rich_user_behavior");
         DataStream<Row> rowDataStream = tableEnv.toAppendStream(table, Row.class);
         rowDataStream.print();
-
 
         fsEnv.execute(CategoryTopN.class.toString());
 
