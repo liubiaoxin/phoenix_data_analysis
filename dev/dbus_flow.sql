@@ -31,7 +31,7 @@ CREATE TABLE `dbus_flow` (
   `uppercaseQualifier` tinyint(1) NOT NULL COMMENT '字段名转大写, 默认为true',
   `commitBatch` int(11) NOT NULL COMMENT '一次提交条数',
   `rowKey` varchar(100) NOT NULL COMMENT '组成rowkey的字段名，必须用逗号分隔',
-  `status` int(11) NOT NULL COMMENT '状态:1-初始,2:就绪,3:运行',
+  `status` int(11) NOT NULL COMMENT '状态:0-初始,1:就绪,2:运行',
   PRIMARY KEY (`flowId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
