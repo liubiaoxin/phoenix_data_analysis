@@ -244,6 +244,12 @@ under the License.
 			<version>1.10.0</version>
 			<scope>compile</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.aliyun.datahub</groupId>
+			<artifactId>aliyun-sdk-datahub</artifactId>
+			<version>2.13.0-public</version>
+		</dependency>
 		<!--************************others***************************-->
 
 	</dependencies>

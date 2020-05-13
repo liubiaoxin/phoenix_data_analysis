@@ -32,8 +32,8 @@ public class PutData2Topic {
         List<RecordEntry> recordEntries = new ArrayList<>();
         for (int cnt = 0; cnt < 10; ++cnt) {
             RecordEntry entry = new RecordEntry();
-            entry.addAttribute("key1", "value1");
-            entry.addAttribute("key2", "value2");
+            /*entry.addAttribute("key1", "value1");
+            entry.addAttribute("key2", "value2");*/
 
             TupleRecordData data = new TupleRecordData(schema);
             data.setField("field1", cnt);
