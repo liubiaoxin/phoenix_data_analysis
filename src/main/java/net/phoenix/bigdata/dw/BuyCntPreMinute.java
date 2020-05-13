@@ -87,6 +87,7 @@ public class BuyCntPreMinute {
         //注册APP层ES结果表
         String es_rs_table = "buy_orders_per_minute";
         String es_table = "CREATE TABLE " + es_rs_table + " ( \n" +
+                "    dt STRING,\n" +
                 "    day_time_str STRING,\n" +
                 "    buy_cnt BIGINT\n" +
                 ") WITH (\n" +
@@ -103,7 +104,7 @@ public class BuyCntPreMinute {
 
         //将dws层每分钟订单汇总结果 sink到APP层ES
         String insertESSQL = "INSERT INTO "+es_rs_table+
-                " SELECT  day_time_str,max(order_num)  FROM "+kafka_sink_table+
+                " SELECT  substring(day_time_str,1,10),day_time_str,max(order_num)  FROM "+kafka_sink_table+
                 " group by day_time_str";
         tableEnv.sqlUpdate(insertESSQL);
 
